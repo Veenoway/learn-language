@@ -1,78 +1,55 @@
 "use client";
-import { gql, useMutation } from "@apollo/client";
+import { Card } from "@/components/card";
+import { gql, useQuery } from "@apollo/client";
 import { useState } from "react";
 
-const ADD_CARD_TO_USER_TAB = gql`
-  mutation AddCardToUserTab(
-    $address: String!
-    $name: String!
-    $card: CardInput!
-  ) {
-    addCardToUserTab(address: $address, tabName: $name, card: $card) {
-      id
+// const getUserQuery = gql`
+//   query getAllUsers {
+//     getAllUsers {
+//       address
+//       tabs {
+//         name
+//         cards {
+//           francais
+//           pinyin
+//           hanzi
+//         }
+//       }
+//     }
+//   }
+// `;
+
+const getUserQuery = gql`
+  query user {
+    user(address: "0x77A89C51f106D6cD547542a3A83FE73cB4459135") {
       address
       tabs {
         name
-        cards
+        cards {
+          francais
+          pinyin
+          hanzi
+        }
       }
     }
   }
 `;
 
-export const AddCardForm = () => {
+export const AddCardForm = (props) => {
   const [userId, setUserId] = useState(""); // État local pour stocker l'ID de l'utilisateur
   const [tabName, setTabName] = useState(""); // État local pour stocker le nom de la tab
   const [card, setCard] = useState({}); // État local pour stocker les détails de la carte
+  console.log("props", props);
+  const { loading, error, data } = useQuery(getUserQuery);
 
-  const [addCardToUserTab] = useMutation(ADD_CARD_TO_USER_TAB);
+  console.log("data", data, "error", error, "loading", loading);
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-
-    // Appeler la mutation avec les valeurs actuelles des états locaux
-    addCardToUserTab({
-      variables: { userId, tabName, card },
-    })
-      .then((result) => {
-        // Gérer le résultat si nécessaire
-        console.log("Card added successfully:", result.data.addCardToUserTab);
-      })
-      .catch((error) => {
-        // Gérer les erreurs si nécessaire
-        console.error("Failed to add card:", error);
-      });
-  };
+  //   if (loading) return <p>Loading...</p>;
+  //   if (error) return <p>Error : {error.message}</p>;
 
   return (
     <div className="h-screen flex items-center justify-center w-screen bg-red">
-      <form onSubmit={handleSubmit}>
-        <label>
-          User ID:
-          <input
-            type="text"
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-          />
-        </label>
-        <label>
-          Tab Name:
-          <input
-            type="text"
-            value={tabName}
-            onChange={(e) => setTabName(e.target.value)}
-          />
-        </label>
-        <label>
-          Card Hanzi:
-          <input
-            type="text"
-            value={card.hanzi}
-            onChange={(e) => setCard({ ...card, hanzi: e.target.value })}
-          />
-        </label>
-        {/* Ajoutez d'autres champs de carte si nécessaire */}
-        <button type="submit">Add Card</button>
-      </form>
+      <Card translate={""} position={""} delay={0} />
     </div>
   );
 };
